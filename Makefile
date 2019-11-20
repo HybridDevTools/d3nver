@@ -14,7 +14,7 @@ BASE        := $(shell pwd)
 
 DIST := {linux,darwin,windows}
 
-S3BUCKET    := s3.d3nver.io/$(PACKAGE)
+S3BUCKET    := s3.d3nver.io/app
 RELEASE     := $(DATE)-v$(VERSION)
 PROJECT_ID  := 181
 S3PATH      := https://s3-eu-west-1.amazonaws.com/$(S3BUCKET)

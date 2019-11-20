@@ -1,6 +1,6 @@
-# DENVER
+# !(https://raw.githubusercontent.com/HybridDevTools/d3nver/master/docs/images/denver_logo.png) D3NVER
 
-Denver helper application
+D3nver helper application
 
 ## Requirements
 
@@ -10,7 +10,7 @@ For Windows users, you must add VirtualBox to your PATH system environment varia
 
 ## Geting started
 
-[Download](https://gitlab.werkspot.com/ldev/denver/-/releases) and uncompress the release anywhere on your computer then, open a terminal (you can use Powershell for Windows users) in this directory.
+[Download](https://github.com/HybridDevTools/d3nver/releases) and uncompress the release anywhere on your computer then, open a terminal (you can use Powershell for Windows users) in this directory.
 
 ```bash
 ./denver
