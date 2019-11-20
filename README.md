@@ -1,4 +1,4 @@
-# !(https://raw.githubusercontent.com/HybridDevTools/d3nver/master/docs/images/denver_logo.png) D3NVER
+# ![logo](https://raw.githubusercontent.com/HybridDevTools/d3nver/master/docs/images/denver_logo_small.png) D3NVER
 
 D3nver helper application
 
