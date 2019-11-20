@@ -1,0 +1,36 @@
+version: 1.0
+
+config:
+  channel: 'stable'
+
+instance:
+  name: 'denver'
+  provider: 'local-vb'
+  vmem: 2048
+  vcpu: 2
+  localip: '10.10.10.10'
+
+userinfo:
+  name: 'John Doe'
+  email: 'j.doe@exemple.com'
+  pubkey: '/home/j.doe/.ssh/id_rsa.pub'
+  privkey: '/home/j.doe/.ssh/id_rsa'
+  userdatasize: 32
+  # User terminal setting
+  # ---------------------
+  # option: (default|iterm2|<custom>)
+  # 'default' option starts Alacritty, a cross platform terminal emulator
+  # 'iterm2' option use iTerm2 as custom terminal (MacOS X only)
+  # you can use any custom terminal that can execute a command from 
+  # the command line and in that case, fill the terminalargument parameter
+  # to pass arguments needed by your chosen terminal, leave it empty otherwise
+  # please specify the full path of your custom terminal
+  terminal: 'default'
+  #terminal: 'tilix'
+  #terminalarguments : '-e'
+
+providers:
+  local-vb:
+    name: 'local-vb'
+    location: 'local'
+    hypervisor: 'virtualbox'

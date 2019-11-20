@@ -1,0 +1,8 @@
+.ssh
+store
+bin
+releases
+.idea
+.vscode
+conf/config.yml
+logs
