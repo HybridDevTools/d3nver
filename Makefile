@@ -15,7 +15,7 @@ BASE        := $(shell pwd)
 DIST := {linux,darwin,windows}
 
 S3BUCKET    := s3.d3nver.io/app
-RELEASE     := $(DATE)-v$(VERSION)
+RELEASE     := v$(VERSION)-$(DATE)
 PROJECT_ID  := 181
 S3PATH      := https://s3-eu-west-1.amazonaws.com/$(S3BUCKET)
 
@@ -48,7 +48,7 @@ build-ci: ; $(info $(M) Building sources...) @  ## Build the sources for CI
 			for dist in $(DIST); do \
 				GOOS=$$dist GOARCH=amd64 $(GO) build \
 					-tags release \
-					-ldflags '-X $(PACKAGE)/cmd.Version=$(VERSION) -X $(PACKAGE)/cmd.BuildTs=$(DATE) -X $(PACKAGE)/cmd.WorkingDirectory=' \
+					-ldflags '-X $(PACKAGE)/cmd.Version=v$(VERSION) -X $(PACKAGE)/cmd.BuildTs=$(DATE) -X $(PACKAGE)/cmd.WorkingDirectory=' \
 					-o ../bin/$(PACKAGE)-$$dist; \
 			done
 
@@ -75,20 +75,6 @@ pack: ; $(info $(M) Packing releases...) @  ## Packing the releases
 
 push-release-to-s3: ; $(info $(M) Push release to S3) @  ## Push release to S3
 		$Q aws s3 sync --acl public-read ./releases s3://$(S3BUCKET)
-
-create-gitlab-release: _create_gitlab_json ; $(info $(M) Create Gitlab release) @  ## Create Gitlab release
-		$Q curl \
-		--header 'Content-Type: application/json' --header "Private-Token: $(TOKEN)" \
-		--data "@release.json" \
-		https://gitlab.werkspot.com/api/v4/projects/$(PROJECT_ID)/releases
-
-_create_gitlab_json:
-		$Q prev=$$(git rev-list -n 1 $$(git describe --abbrev=0 --tags)|git rev-list --max-parents=0 HEAD); \
-		last=$$(git --no-pager log --pretty=format:'%H' -n 1); \
-		description=$$(git --no-pager log --merges --pretty=tformat:"## %h - %aI - [%aN](mailto:%aE)%n\\\`\\\`\\\`%n%b%n\\\`\\\`\\\`" $$prev..); \
-		echo "{ \"name\": \"$(RELEASE)\", \"tag_name\": \"$(RELEASE)\", \"ref\": \"$$last\", \"description\": \"$$description\", \"assets\": { \"links\": [{ \"name\": \"Linux\", \"url\": \"$(S3PATH)/linux/$(DATE)/$(PACKAGE)-linux-$(RELEASE).tar.bz2\" }, { \"name\": \"Mac\", \"url\": \"$(S3PATH)/darwin/$(DATE)/$(PACKAGE)-darwin-$(RELEASE).zip\" }, { \"name\": \"Windows\", \"url\": \"$(S3PATH)/windows/$(DATE)/$(PACKAGE)-windows-$(RELEASE).zip\" }] } }" \
-		| awk '{printf "%s\\n", $$0}' 2>&1 \
-		| sed 's/..$$//' > release.json
 
 clean: ; $(info $(M) Removing useless data...) @  ## Cleanup the project folder
 		$Q -cd ./src && $(GO) clean
