@@ -2,22 +2,26 @@ ifndef VERBOSE
 .SILENT:
 endif
 
-PACKAGE     := denver
-DATE        := $(shell date +%s)
-VERSION     := $(shell git --no-pager log --pretty=format:'%h' -n 1)
-SHELL       := bash
+PACKAGE        := denver
+DATE           := $(shell date +%s)
+VERSION        := $(shell git --no-pager log --pretty=format:'%h' -n 1)
+SHELL          := bash
 
-BUILD_IMG   := golang:stretch
+BUILDER_IMG    := golang:stretch
+BUILDER_STATUS := $(shell docker inspect -f '{{.State.Running}}' denver_builder 2> /dev/null)
 
-GO          := go
-BASE        := $(shell pwd)
+GO             := go
+BASE           := $(shell pwd)
 
-DIST := {linux,darwin,windows}
+DIST           := {linux,darwin,windows}
 
-S3BUCKET    := s3.d3nver.io/app
-RELEASE     := v$(VERSION)-$(DATE)
-PROJECT_ID  := 181
-S3PATH      := https://s3-eu-west-1.amazonaws.com/$(S3BUCKET)
+S3BUCKET       := s3.d3nver.io/app
+RELEASE        := v$(VERSION)-$(DATE)
+PROJECT_ID     := 181
+S3PATH         := https://s3-eu-west-1.amazonaws.com/$(S3BUCKET)
+
+UID            := $(shell id -u)
+GID            := $(shell id -g)
 
 V = 0
 Q = $(if $(filter 1,$V),,@)
@@ -40,8 +44,19 @@ lint: install-tools ; $(info $(M) Linting sources...) @  ## Code lint
 		$Q cd ./src && fgt goimports -w .
 		$Q cd ./src && fgt errcheck -ignore Close  ./...
 
-build-denver: ; $(info $(M) Building sources...) @  ## Build the sources inside Denver
-		docker run --rm --interactive --tty --name $(PACKAGE)_builder --volume $$PWD:/go/src/$(PACKAGE) $(BUILD_IMG) bash -c "cd /go/src/$(PACKAGE); make lint test build-ci; chown -R 1000:1000 /go/src/$(PACKAGE)"
+dev-start: ; $(info $(M) Starting dev tools...) @  ## Starting dev tools
+ifeq ($(BUILDER_STATUS), true)
+		@echo "$(PACKAGE)_builder already running"
+else
+		@echo "$(PACKAGE)_builder not running, starting ..."
+		docker run --rm -it --detach --name $(PACKAGE)_builder --volume $$PWD:/go/src/$(PACKAGE) $(BUILDER_IMG)
+endif
+
+dev-stop: ; $(info $(M) Stopping dev tools...) @  ## Stopping dev tools
+		docker stop $(PACKAGE)_builder
+
+build-denver: dev-start ; $(info $(M) Building sources...) @  ## Build the sources inside Denver
+		docker exec $(PACKAGE)_builder bash -c "cd /go/src/$(PACKAGE); make lint test build-ci; chown -R $(UID):$(GID) /go/src/$(PACKAGE)"
 
 build-ci: ; $(info $(M) Building sources...) @  ## Build the sources for CI
 		$Q cd ./src && \
