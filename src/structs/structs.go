@@ -32,6 +32,13 @@ type Config struct {
 	Channel string
 }
 
+// Storage : TODO
+type Storage struct {
+	StorageType string
+	S3bucket    string
+	S3region    string
+}
+
 // Denver : TODO
 type Denver struct {
 	Version   string

@@ -6,6 +6,7 @@ require (
 	github.com/Azure/go-ansiterm v0.0.0-20170929234023-d6e3b3328b78 // indirect
 	github.com/Sirupsen/logrus v1.0.6 // indirect
 	github.com/Songmu/prompter v0.2.0
+	github.com/aws/aws-sdk-go v1.25.48
 	github.com/cheggaaa/pb/v3 v3.0.1
 	github.com/docker/docker v1.13.1
 	github.com/dsnet/compress v0.0.1

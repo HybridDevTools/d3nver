@@ -16,6 +16,7 @@ type HTTP struct{}
 
 // Download a document and place it in destination
 func (h *HTTP) Download(origin, destination string) (destFile string, err error) {
+
 	resp, err := http.Get(origin)
 	if err != nil {
 		return

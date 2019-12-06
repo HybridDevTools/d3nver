@@ -9,7 +9,9 @@ import (
 	"denver/pkg/notify"
 	"denver/pkg/providers"
 	"denver/pkg/ssh"
-	"denver/pkg/storage/http"
+	"denver/pkg/storage"
+
+	//"denver/pkg/storage/http"
 	"denver/pkg/updater"
 	"denver/pkg/user"
 	"denver/pkg/util/compressor"
@@ -63,7 +65,7 @@ func New(ctx context.Context, workingDirectory string) *Denver {
 				filepath.Join("conf", "config.dist.yml"),
 			},
 			compressor.NewMultiCompressor(),
-			&http.HTTP{},
+			storage.NewMultiStorage(),
 		),
 		ctx:    ctx,
 		notify: notify.CliQuestion{},
