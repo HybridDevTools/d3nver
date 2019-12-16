@@ -65,10 +65,14 @@ build-ci: ; $(info $(M) Building sources...) @  ## Build the sources for CI
 				GOOS=$$dist GOARCH=amd64 $(GO) build \
 					-tags release \
 					-ldflags '-X $(PACKAGE)/cmd.Version=v$(VERSION) -X $(PACKAGE)/cmd.BuildTs=$(DATE) -X $(PACKAGE)/cmd.WorkingDirectory=' \
-					-o ../bin/$(PACKAGE)-$$dist; \
-			done
+					-o ../bin/$(PACKAGE)-$$dist ; \
+			done ; \
+			echo "$(DATE)" > ../bin/build-ts.txt ; \
+			echo "$(RELEASE)" > ../bin/build-release.txt ; \
 
 pack: ; $(info $(M) Packing releases...) @  ## Packing the releases
+		$(eval DATE    := $(shell cat ./bin/build-ts.txt))
+		$(eval RELEASE := $(shell cat ./bin/build-release.txt))
 		$Q rm -rf ./releases
 		$Q mkdir -p ./releases/$(DIST)/$(DATE)/$(PACKAGE)/{conf,tools}
 		$Q cd $(BASE) && \
