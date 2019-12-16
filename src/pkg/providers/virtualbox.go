@@ -398,7 +398,6 @@ func (v *Virtualbox) setDefaultOptions() error {
 		"--mouse", "ps2",
 		"--keyboard", "ps2",
 		"--usb", "off",
-		"--clipboard", "disabled",
 		"--draganddrop", "disabled",
 		"--usbcardreader", "off",
 		"--audio", "none",
