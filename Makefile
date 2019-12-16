@@ -23,9 +23,10 @@ S3PATH         := https://s3-eu-west-1.amazonaws.com/$(S3BUCKET)
 UID            := $(shell id -u)
 GID            := $(shell id -g)
 
-V = 0
-Q = $(if $(filter 1,$V),,@)
-M = $(shell printf "\033[34;1m▶\033[0m")
+V  = 0
+Q  = $(if $(filter 1,$V),,@)
+M  = $(shell printf "\033[34;94m▶\033[0m")
+M2 = $(shell printf "  \033[34;35m▶\033[0m")
 
 ########################################################
 ### Stages                                           ###
@@ -46,16 +47,16 @@ lint: install-tools ; $(info $(M) Linting sources...) @  ## Code lint
 
 dev-start: ; $(info $(M) Starting dev tools...) @  ## Starting dev tools
 ifeq ($(BUILDER_STATUS), true)
-		@echo "$(PACKAGE)_builder already running"
+		$(info $(M2) $(PACKAGE)_builder already running )
 else
-		@echo "$(PACKAGE)_builder not running, starting ..."
+		$(info $(M2) $(PACKAGE)_builder not running, starting ... )
 		docker run --rm -it --detach --name $(PACKAGE)_builder --volume $$PWD:/go/src/$(PACKAGE) $(BUILDER_IMG)
 endif
 
 dev-stop: ; $(info $(M) Stopping dev tools...) @  ## Stopping dev tools
 		docker stop $(PACKAGE)_builder
 
-build-denver: dev-start ; $(info $(M) Building sources...) @  ## Build the sources inside Denver
+build-denver: dev-start ; $(info $(M) Building sources within Docker...) @  ## Build the sources inside Denver
 		docker exec $(PACKAGE)_builder bash -c "cd /go/src/$(PACKAGE); make lint test build-ci; chown -R $(UID):$(GID) /go/src/$(PACKAGE)"
 
 build-ci: ; $(info $(M) Building sources...) @  ## Build the sources for CI
