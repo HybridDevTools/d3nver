@@ -2,6 +2,7 @@ version: 1.0
 
 config:
   channel: 'stable'
+  rbiurl: 'https://s3-eu-west-1.amazonaws.com/s3.d3nver.io/rbi'
 
 instance:
   name: 'denver'

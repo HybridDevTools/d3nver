@@ -30,6 +30,7 @@ type Provider struct {
 // Config : TODO
 type Config struct {
 	Channel string
+	RBIURL  string
 }
 
 // Denver : TODO
