@@ -55,11 +55,12 @@ func GetVMProvider(
 	instance *structs.InstanceConf,
 	userDataSize int,
 	channel string,
+	rbiurl string,
 	workingDirectory string,
 ) (VMProvider, error) {
 	switch provider.Hypervisor {
 	case TypeVirtualbox:
-		updater, boxPath, err := getVMUpdater(ctx, workingDirectory, channel, provider.Hypervisor)
+		updater, boxPath, err := getVMUpdater(ctx, workingDirectory, channel, rbiurl, provider.Hypervisor)
 		if err != nil {
 			return nil, err
 		}
@@ -77,7 +78,7 @@ func GetVMProvider(
 	return nil, fmt.Errorf("invalid provider %s", provider.Hypervisor)
 }
 
-func getVMUpdater(ctx context.Context, workingDirectory, channel, hypervisor string) (VMUpdater, string, error) {
+func getVMUpdater(ctx context.Context, workingDirectory, channel, rbiurl, hypervisor string) (VMUpdater, string, error) {
 	switch hypervisor {
 	case TypeVirtualbox:
 		relBoxPath := filepath.Join("store", channel, "box.vdi")
@@ -85,9 +86,9 @@ func getVMUpdater(ctx context.Context, workingDirectory, channel, hypervisor str
 		return virtualbox.NewUpdater(
 			ctx,
 			workingDirectory,
-			fmt.Sprintf("https://s3-eu-west-1.amazonaws.com/s3.d3nver.io/rbi/%s/virtualbox/manifest.json", channel),
+			fmt.Sprintf("%s/%s/virtualbox/manifest.json", rbiurl, channel),
 			filepath.Join("store", channel, "manifest.json"),
-			fmt.Sprintf("https://s3-eu-west-1.amazonaws.com/s3.d3nver.io/rbi/%s/virtualbox/box.vdi.bz2", channel),
+			fmt.Sprintf("%s/%s/virtualbox/box.vdi.bz2", rbiurl, channel),
 			relBoxPath,
 			&http.HTTP{},
 			compressor.NewMultiCompressor(),

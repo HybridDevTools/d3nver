@@ -159,6 +159,7 @@ func (s *Denver) setVMProvider() (err error) {
 		s.config.Instance,
 		s.config.UserInfo.Userdatasize,
 		s.config.Config.Channel,
+		s.config.Config.RBIURL,
 		s.workingDirectory,
 	); err != nil {
 		return
