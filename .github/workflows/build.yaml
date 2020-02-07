@@ -26,7 +26,7 @@ jobs:
           aws-region: eu-west-1
 
       - name: Installing requirements
-        run: sudo apt-get -qq update ; sudo apt-get --no-install-recommends install lbzip2 -y
+        run: sudo apt-get -qq update ; sudo apt-get --no-install-recommends install lbzip2 tree -y
 
       - name: Starting builder image
         run: make dev-start
@@ -36,6 +36,9 @@ jobs:
 
       - name: Create packages to release
         run: make pack
+
+      - name: Display release
+        run: tree ./releases/
 
       - name: Gather commit message for changelog
         run: git log -1 --pretty=%B --no-merges > .release-changes
