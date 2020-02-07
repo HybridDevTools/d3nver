@@ -1,2 +1,2 @@
 #!/bin/bash
-docker exec denver_builder go $*
+docker exec denver_builder bash -c "cd ./src/denver/src; go" $*
