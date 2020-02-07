@@ -20,9 +20,9 @@ type Term struct {
 }
 
 // This variables has been created to be set during compilation :)
-var windowsTerm = "alacritty-windows-0.3.3.exe"
-var darwinTerm = "alacritty-darwin-0.3.3"
-var linuxTerm = "alacritty-linux-0.3.2"
+var windowsTerm = "alacritty-windows-0.4.1.exe"
+var darwinTerm = "alacritty-darwin-0.4.1"
+var linuxTerm = "alacritty-linux-0.4.1"
 
 // NewTerm returns a pointer to Term
 func NewTerm(workingDirectory string, user, ip, terminal, terminalArguments *string, vmProvider *providers.VMProvider, printer *log.Logger) *Term {
