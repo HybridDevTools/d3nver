@@ -4,7 +4,12 @@ endif
 
 PACKAGE        := denver
 DATE           := $(shell date +%s)
-VERSION        := $(shell git --no-pager log --pretty=format:'%h' -n 1)
+ifeq ($(wildcard .release),)
+	VERSION        := $(shell git --no-pager log --pretty=format:'%h' -n 1)
+else
+	VERSION        := $(shell cat .release)
+endif
+
 SHELL          := bash
 
 BUILDER_IMG    := golang:stretch
@@ -16,8 +21,6 @@ BASE           := $(shell pwd)
 DIST           := {linux,darwin,windows}
 
 S3BUCKET       := s3.d3nver.io/app
-RELEASE        := v$(VERSION)-$(DATE)
-PROJECT_ID     := 181
 S3PATH         := https://s3-eu-west-1.amazonaws.com/$(S3BUCKET)
 
 UID            := $(shell id -u)
@@ -56,42 +59,38 @@ endif
 dev-stop: ; $(info $(M) Stopping dev tools...) @  ## Stopping dev tools
 		docker stop $(PACKAGE)_builder
 
-build-denver: dev-start ; $(info $(M) Building sources within Docker...) @  ## Build the sources inside Denver
-		docker exec $(PACKAGE)_builder bash -c "cd /go/src/$(PACKAGE); make lint test build-ci; chown -R $(UID):$(GID) /go/src/$(PACKAGE)"
+build-docker: dev-start ; $(info $(M) Building sources within Docker...) @  ## Build the sources inside Denver
+		docker exec $(PACKAGE)_builder bash -c "cd /go/src/$(PACKAGE); make lint test build-local; chown -R $(UID):$(GID) /go/src/$(PACKAGE)"
 
-build-ci: ; $(info $(M) Building sources...) @  ## Build the sources for CI
+build-local: ; $(info $(M) Building sources...) @  ## Build the sources for CI
 		$Q cd ./src && \
 			for dist in $(DIST); do \
 				GOOS=$$dist GOARCH=amd64 $(GO) build \
 					-tags release \
-					-ldflags '-X $(PACKAGE)/cmd.Version=v$(VERSION) -X $(PACKAGE)/cmd.BuildTs=$(DATE) -X $(PACKAGE)/cmd.WorkingDirectory=' \
+					-ldflags '-X $(PACKAGE)/cmd.Version=$(VERSION) -X $(PACKAGE)/cmd.UpdatePath=$(S3PATH) -X $(PACKAGE)/cmd.WorkingDirectory=' \
 					-o ../bin/$(PACKAGE)-$$dist ; \
-			done ; \
-			echo "$(DATE)" > ../bin/build-ts.txt ; \
-			echo "$(RELEASE)" > ../bin/build-release.txt ; \
+			done ;
 
 pack: ; $(info $(M) Packing releases...) @  ## Packing the releases
-		$(eval DATE    := $(shell cat ./bin/build-ts.txt))
-		$(eval RELEASE := $(shell cat ./bin/build-release.txt))
 		$Q rm -rf ./releases
-		$Q mkdir -p ./releases/$(DIST)/$(DATE)/$(PACKAGE)/{conf,tools}
+		$Q mkdir -p ./releases/$(DIST)/$(VERSION)/$(PACKAGE)/{conf,tools}
 		$Q cd $(BASE) && \
 			for dist in $(DIST); do \
-				cp bin/$(PACKAGE)-$$dist releases/$$dist/$(DATE)/$(PACKAGE)/$(PACKAGE) ; \
-				cp conf/config.yml.dist releases/$$dist/$(DATE)/$(PACKAGE)/conf/config.yml.dist ; \
-				cp tools/alacritty-$$dist-* releases/$$dist/$(DATE)/$(PACKAGE)/tools/ ; \
-				cp tools/alacritty.yml releases/$$dist/$(DATE)/$(PACKAGE)/tools/ ; \
+				cp bin/$(PACKAGE)-$$dist releases/$$dist/$(VERSION)/$(PACKAGE)/$(PACKAGE) ; \
+				cp conf/config.yml.dist releases/$$dist/$(VERSION)/$(PACKAGE)/conf/config.yml.dist ; \
+				cp tools/alacritty-$$dist-* releases/$$dist/$(VERSION)/$(PACKAGE)/tools/ ; \
+				cp tools/alacritty.yml releases/$$dist/$(VERSION)/$(PACKAGE)/tools/ ; \
 			done
-		$Q mv releases/windows/$(DATE)/$(PACKAGE)/$(PACKAGE) releases/windows/$(DATE)/$(PACKAGE)/$(PACKAGE).exe
-		$Q cp tools/winpty-agent.exe releases/windows/$(DATE)/$(PACKAGE)/tools/
-		$Q cp tools/iterm2.sh releases/darwin/$(DATE)/$(PACKAGE)/tools/
-		$Q cd ./releases/linux && echo "{ \"filesize\": \"$$(du -s $(DATE)/$(PACKAGE) | cut -f 1)\", \"date\": \"$(DATE)\", \"release\": \"$(RELEASE)\", \"url\": \"$(S3PATH)/linux/$(DATE)/$(PACKAGE)-linux-$(RELEASE).tar.bz2\" }" > manifest.json
-		$Q cd ./releases/linux/$(DATE) && tar -I lbzip2 -cf ./$(PACKAGE)-linux-$(RELEASE).tar.bz2 $(PACKAGE)
-		$Q cd ./releases/darwin && echo "{ \"filesize\": \"$$(du -s $(DATE)/$(PACKAGE) | cut -f 1)\", \"date\": \"$(DATE)\", \"release\": \"$(RELEASE)\", \"url\": \"$(S3PATH)/darwin/$(DATE)/$(PACKAGE)-darwin-$(RELEASE).zip\" }" > manifest.json
-		$Q cd ./releases/darwin/$(DATE) && zip -rq ./$(PACKAGE)-darwin-$(RELEASE).zip $(PACKAGE)
-		$Q cd ./releases/windows && echo "{ \"filesize\": \"$$(du -s $(DATE)/$(PACKAGE) | cut -f 1)\", \"date\": \"$(DATE)\", \"release\": \"$(RELEASE)\", \"url\": \"$(S3PATH)/windows/$(DATE)/$(PACKAGE)-windows-$(RELEASE).zip\" }" > manifest.json
-		$Q cd ./releases/windows/$(DATE) && zip -rq ./$(PACKAGE)-windows-$(RELEASE).zip $(PACKAGE)
-		$Q for dist in $(DIST); do rm -rf ./releases/$$dist/$(DATE)/$(PACKAGE) ; done
+		$Q mv releases/windows/$(VERSION)/$(PACKAGE)/$(PACKAGE) releases/windows/$(VERSION)/$(PACKAGE)/$(PACKAGE).exe
+		$Q cp tools/winpty-agent.exe releases/windows/$(VERSION)/$(PACKAGE)/tools/
+		$Q cp tools/iterm2.sh releases/darwin/$(VERSION)/$(PACKAGE)/tools/
+		$Q cd ./releases/linux && echo "{ \"filesize\": \"$$(du -s $(VERSION)/$(PACKAGE) | cut -f 1)\", \"date\": \"$(DATE)\", \"release\": \"$(VERSION)\", \"url\": \"$(S3PATH)/linux/$(PACKAGE)_$(VERSION)_Linux_amd64.tar.bz2\" }" > manifest.json
+		$Q cd ./releases/linux/$(VERSION) && tar -I lbzip2 -cf ../$(PACKAGE)_$(VERSION)_Linux_amd64.tar.bz2 $(PACKAGE)
+		$Q cd ./releases/darwin && echo "{ \"filesize\": \"$$(du -s $(VERSION)/$(PACKAGE) | cut -f 1)\", \"date\": \"$(DATE)\", \"release\": \"$(VERSION)\", \"url\": \"$(S3PATH)/darwin/$(PACKAGE)_$(VERSION)_Darwin_amd64.zip\" }" > manifest.json
+		$Q cd ./releases/darwin/$(VERSION) && zip -rq ../$(PACKAGE)_$(VERSION)_Darwin_amd64.zip $(PACKAGE)
+		$Q cd ./releases/windows && echo "{ \"filesize\": \"$$(du -s $(VERSION)/$(PACKAGE) | cut -f 1)\", \"date\": \"$(DATE)\", \"release\": \"$(VERSION)\", \"url\": \"$(S3PATH)/windows/$(PACKAGE)_$(VERSION)_Windows_amd64.zip\" }" > manifest.json
+		$Q cd ./releases/windows/$(VERSION) && zip -rq ../$(PACKAGE)_$(VERSION)_Windows_amd64.zip $(PACKAGE)
+		$Q for dist in $(DIST); do rm -rf ./releases/$$dist/$(VERSION) ; done
 
 push-release-to-s3: ; $(info $(M) Push release to S3) @  ## Push release to S3
 		$Q aws s3 sync --acl public-read ./releases s3://$(S3BUCKET)

@@ -56,7 +56,7 @@ func New(ctx context.Context, workingDirectory string) *Denver {
 		updater: updater.NewDefaultUpdater(
 			ctx,
 			workingDirectory,
-			fmt.Sprintf("https://s3-eu-west-1.amazonaws.com/s3.d3nver.io/app/%s/manifest.json", runtime.GOOS),
+			fmt.Sprintf("%s/%s/manifest.json", cmd.UpdatePath, runtime.GOOS),
 			[]string{
 				"denver",
 				"tools",
@@ -106,7 +106,7 @@ func (s *Denver) getRootCommand() *cobra.Command {
 		Use:           "denver",
 		Short:         "Helper minion for the D3nver platform",
 		Long:          "D3nver, the Developer ENVironment",
-		Version:       fmt.Sprintf("%s-%s", cmd.Version, cmd.BuildTs),
+		Version:       fmt.Sprintf("%s", cmd.Version),
 		SilenceUsage:  true,
 		SilenceErrors: true,
 	}
@@ -193,7 +193,7 @@ func (s *Denver) initProbe() (err error) {
 
 func setLog() {
 	log.SetOutput(os.Stdout)
-	log.SetPrefix("[DENVER] ")
+	log.SetPrefix("[D3NVER] ")
 	log.SetFlags(log.LUTC | log.LstdFlags | log.Lshortfile)
 }
 

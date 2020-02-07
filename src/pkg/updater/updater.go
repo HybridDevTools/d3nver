@@ -7,11 +7,15 @@ import (
 	"denver/pkg/util"
 	"denver/pkg/util/compressor"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
+
+	"github.com/Masterminds/semver"
 )
 
 // Updater represents an updater mechanism
@@ -61,18 +65,27 @@ func (u *DefaultUpdater) CheckIsUpdated(localVersion string) (manifest Manifest,
 		return
 	}
 
-	var l, m int
-	l, err = strconv.Atoi(localVersion)
+	log.Printf("Local version : %s", localVersion)
+	log.Printf("Remote version : %s", manifest.Release)
+
+	if strings.HasPrefix(manifest.Release, "v") {
+		updated = true
+		log.Println("Unrecognized or older version schema")
+		return
+	}
+
+	c, err := semver.NewConstraint(fmt.Sprintf(">= %s", manifest.Release))
 	if err != nil {
 		return
 	}
 
-	m, err = strconv.Atoi(manifest.Date)
+	v, err := semver.NewVersion(localVersion)
 	if err != nil {
 		return
 	}
 
-	updated = l >= m
+	// Validate a version against a constraint.
+	updated, _ = c.Validate(v)
 	return
 }
 
