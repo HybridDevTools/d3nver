@@ -32,7 +32,7 @@ jobs:
         run: make dev-start
 
       - name: Build code
-        run: make build-denver
+        run: make build-docker
 
       - name: Create packages to release
         run: make pack
