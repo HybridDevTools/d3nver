@@ -26,7 +26,7 @@ jobs:
           aws-region: eu-west-1
 
       - name: Installing requirements
-        run: sudo apt-get -qq update ; sudo apt-get --no-install-recommends install lbzip2 -y; npm install -g conventional-changelog-cli
+        run: sudo apt-get -qq update ; sudo apt-get --no-install-recommends install lbzip2 -y
 
       - name: Starting builder image
         run: make dev-start
