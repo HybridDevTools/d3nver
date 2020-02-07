@@ -1,0 +1,16 @@
+{
+  "name": "extract-version-from-file",
+  "version": "1.0.0",
+  "description": "Extract version from a file",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Walid Moghrabi",
+  "license": "ISC",
+  "dependencies": {
+    "@actions/core": "^1.2.0",
+    "@actions/github": "^2.0.0",
+    "fs": "0.0.1-security"
+  }
+}

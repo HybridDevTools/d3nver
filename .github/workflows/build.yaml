@@ -1,0 +1,96 @@
+name: D3nver build
+
+# This workflow is triggered on pushes to the repository.
+on:
+  push:
+    # Sequence of patterns matched against refs/heads
+    branches:    
+      - master         # Push events on master branch
+
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Source checkout
+        uses: actions/checkout@v1
+        with:
+          fetch-depth: 1
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-1
+
+      - name: Installing requirements
+        run: sudo apt-get -qq update ; sudo apt-get --no-install-recommends install lbzip2 -y; npm install -g conventional-changelog-cli
+
+      - name: Starting builder image
+        run: make dev-start
+
+      - name: Build code
+        run: make build-denver
+
+      - name: Create packages to release
+        run: make pack
+
+      - name: Gather commit message for changelog
+        run: git log -1 --pretty=%B --no-merges > .release-changes
+
+      - uses: actions/checkout@v1
+      - name: Fetch .release
+        uses: ./.github/actions/extract-version-from-file # Uses an action in the root directory
+        id: fetch_version
+        with:
+          version-file: .release
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+        with:
+          tag_name: ${{ steps.fetch_version.outputs.version }}
+          release_name: Release ${{ steps.fetch_version.outputs.version }}
+          bodyFile: .release-changes
+          draft: false
+          prerelease: false
+
+      - name: Upload Darwin Release Asset
+        id: upload-darwin-release-asset 
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+          asset_path: ./releases/darwin/denver_${{ steps.fetch_version.outputs.version }}_Darwin_amd64.zip
+          asset_name: denver_${{ steps.fetch_version.outputs.version }}_Darwin_amd64.zip
+          asset_content_type: application/zip
+
+      - name: Upload Linux Release Asset
+        id: upload-linux-release-asset 
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+          asset_path: ./releases/linux/denver_${{ steps.fetch_version.outputs.version }}_Linux_amd64.tar.bz2
+          asset_name: denver_${{ steps.fetch_version.outputs.version }}_Linux_amd64.tar.bz2
+          asset_content_type: application/x-gtar
+
+      - name: Upload Windows Release Asset
+        id: upload-windows-release-asset 
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+          asset_path: ./releases/windows/denver_${{ steps.fetch_version.outputs.version }}_Windows_amd64.zip
+          asset_name: denver_${{ steps.fetch_version.outputs.version }}_Windows_amd64.zip
+          asset_content_type: application/zip
+
+      - name: Push release to auto-update S3 bucket
+        run: make push-release-to-s3
