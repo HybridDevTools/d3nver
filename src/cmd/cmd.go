@@ -7,11 +7,11 @@ import (
 // Version compiled
 var Version = "dev"
 
-// BuildTs stores ts of compilation
-var BuildTs = "0"
-
 // WorkingDirectory will be unset during compilation
 var WorkingDirectory = "."
+
+// UpdatePath will be unset during compilation
+var UpdatePath = "."
 
 // Action interface must be implemented to define a new CLI action
 type Action interface {

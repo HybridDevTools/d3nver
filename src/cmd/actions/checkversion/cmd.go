@@ -69,7 +69,7 @@ func (c *CheckVersion) CheckForUpdates() (err error) {
 }
 
 func (c *CheckVersion) checkForControllerUpdate() (isUpToDate bool, err error) {
-	_, isUpToDate, err = c.updater.CheckIsUpdated(cmd.BuildTs)
+	_, isUpToDate, err = c.updater.CheckIsUpdated(cmd.Version)
 	if err != nil {
 		return
 	}
@@ -77,7 +77,7 @@ func (c *CheckVersion) checkForControllerUpdate() (isUpToDate bool, err error) {
 		return
 	}
 
-	answer := c.notify.AskQuestion("A new version for Denver is available, do you want to update?")
+	answer := c.notify.AskQuestion("A new version for Denver app is available, do you want to upgrade ?")
 	if !answer {
 		return
 	}
@@ -87,19 +87,20 @@ func (c *CheckVersion) checkForControllerUpdate() (isUpToDate bool, err error) {
 }
 
 func (c *CheckVersion) checkForRootBaseImageUpdate() (isUpToDate bool, err error) {
-	isUpToDate, err = (*c.vmProvider).CheckIsUpdated()
-	if err != nil {
-		return
-	}
-	if isUpToDate {
-		return
-	}
+	return true, err
+	// isUpToDate, err = (*c.vmProvider).CheckIsUpdated()
+	// if err != nil {
+	// 	return
+	// }
+	// if isUpToDate {
+	// 	return
+	// }
 
-	answer := c.notify.AskQuestion("A new version for the Root Base Image is available, do you want to update?")
-	if !answer {
-		return
-	}
+	// answer := c.notify.AskQuestion("A new version for the Root Base Image is available, do you want to upgrade ?")
+	// if !answer {
+	// 	return
+	// }
 
-	_, err = (*c.vmProvider).Update()
-	return
+	// _, err = (*c.vmProvider).Update()
+	// return
 }

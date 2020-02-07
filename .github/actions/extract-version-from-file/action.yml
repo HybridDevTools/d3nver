@@ -1,0 +1,13 @@
+name: 'Extract version from file'
+description: 'Extract version from a file'
+inputs:
+  version-file:  # id of input
+    description: 'Path to file containing version information'
+    required: false
+    default: '.release'
+outputs:
+  version: # id of output
+    description: 'The version string extracted from file'
+runs:
+  using: 'node12'
+  main: 'index.js'

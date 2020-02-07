@@ -1,2 +1,2 @@
 #!/bin/bash
-docker exec denver_builder golint $*
+docker exec denver_builder bash -c "cd ./src/denver/src; golint" $*

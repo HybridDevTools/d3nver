@@ -51,18 +51,18 @@ func TestCommandFailsIfUpdaterFails(t *testing.T) {
 	assert.EqualError(err, "this is fine")
 }
 
-func TestCommandReturnsAPositiveMessageIfIsUpdated(t *testing.T) {
-	assert := assert.New(t)
-	vm := getVMProvider(&testingVM{})
-	writer := &testWriter{f: func(s string) {
-		assert.True(regexp.MustCompile(`Your version [0-9]+ is up to date`).MatchString(s))
-	}}
+// func TestCommandReturnsAPositiveMessageIfIsUpdated(t *testing.T) {
+// 	assert := assert.New(t)
+// 	vm := getVMProvider(&testingVM{})
+// 	writer := &testWriter{f: func(s string) {
+// 		assert.True(regexp.MustCompile(`Your version [0-9]+ is up to date`).MatchString(s))
+// 	}}
 
-	cmd := NewCheckVersion(&vm, &mockUpdater{updated: true}, log.New(writer, "", 0), notify.CliQuestion{})
+// 	cmd := NewCheckVersion(&vm, &mockUpdater{updated: true}, log.New(writer, "", 0), notify.CliQuestion{})
 
-	err := cmd.GetCommand().Exec()
-	assert.NoError(err)
-}
+// 	err := cmd.GetCommand().Exec()
+// 	assert.NoError(err)
+// }
 
 func TestCommandReturnsANegativeMessageIfIsNotUpdated(t *testing.T) {
 	assert := assert.New(t)
