@@ -87,20 +87,19 @@ func (c *CheckVersion) checkForControllerUpdate() (isUpToDate bool, err error) {
 }
 
 func (c *CheckVersion) checkForRootBaseImageUpdate() (isUpToDate bool, err error) {
-	return true, err
-	// isUpToDate, err = (*c.vmProvider).CheckIsUpdated()
-	// if err != nil {
-	// 	return
-	// }
-	// if isUpToDate {
-	// 	return
-	// }
+	isUpToDate, err = (*c.vmProvider).CheckIsUpdated()
+	if err != nil {
+		return
+	}
+	if isUpToDate {
+		return
+	}
 
-	// answer := c.notify.AskQuestion("A new version for the Root Base Image is available, do you want to upgrade ?")
-	// if !answer {
-	// 	return
-	// }
+	answer := c.notify.AskQuestion("A new version for the Root Base Image is available, do you want to upgrade ?")
+	if !answer {
+		return
+	}
 
-	// _, err = (*c.vmProvider).Update()
-	// return
+	_, err = (*c.vmProvider).Update()
+	return
 }
