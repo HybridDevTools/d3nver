@@ -53,14 +53,14 @@ ifeq ($(BUILDER_STATUS), true)
 		$(info $(M2) $(PACKAGE)_builder already running )
 else
 		$(info $(M2) $(PACKAGE)_builder not running, starting ... )
-		docker run --rm -it --detach --name $(PACKAGE)_builder --volume $$PWD:/go/src/$(PACKAGE) $(BUILDER_IMG)
+		docker run --rm -it --detach --name $(PACKAGE)_builder --volume $$PWD:$$PWD --workdir $$PWD $(BUILDER_IMG)
 endif
 
 dev-stop: ; $(info $(M) Stopping dev tools...) @  ## Stopping dev tools
 		docker stop $(PACKAGE)_builder
 
 build-docker: dev-start ; $(info $(M) Building sources within Docker...) @  ## Build the sources inside Denver
-		docker exec $(PACKAGE)_builder bash -c "cd /go/src/$(PACKAGE); make lint test build-local; chown -R $(UID):$(GID) /go/src/$(PACKAGE)"
+		docker exec $(PACKAGE)_builder bash -c "cd $$PWD; make lint test build-local; chown -R $(UID):$(GID) $$PWD"
 
 build-local: ; $(info $(M) Building sources...) @  ## Build the sources for CI
 		$Q cd ./src && \

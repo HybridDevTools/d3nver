@@ -4,6 +4,7 @@ go 1.12
 
 require (
 	github.com/Azure/go-ansiterm v0.0.0-20170929234023-d6e3b3328b78 // indirect
+	github.com/GeertJohan/fgt v0.0.0-20160120143236-262f7b11eec0 // indirect
 	github.com/Masterminds/semver v1.5.0
 	github.com/Sirupsen/logrus v1.0.6 // indirect
 	github.com/Songmu/prompter v0.2.0
@@ -12,6 +13,7 @@ require (
 	github.com/dsnet/compress v0.0.1
 	github.com/frankban/quicktest v1.5.0 // indirect
 	github.com/golang/snappy v0.0.1 // indirect
+	github.com/kisielk/errcheck v1.2.0 // indirect
 	github.com/logrusorgru/aurora v0.0.0-20190803045625-94edacc10f9b
 	github.com/mholt/archiver v3.1.1+incompatible
 	github.com/mitchellh/go-homedir v1.1.0
@@ -24,8 +26,9 @@ require (
 	github.com/spf13/viper v1.4.0
 	github.com/stretchr/testify v1.2.2
 	github.com/xi2/xz v0.0.0-20171230120015-48954b6210f8 // indirect
-	golang.org/x/crypto v0.0.0-20190911031432-227b76d455e7
-	golang.org/x/tools v0.0.0-20190311212946-11955173bddd
+	golang.org/x/crypto v0.0.0-20191011191535-87dc89f01550
+	golang.org/x/lint v0.0.0-20200130185559-910be7a94367 // indirect
+	golang.org/x/tools v0.0.0-20200207224406-61798d64f025
 	gopkg.in/airbrake/gobrake.v2 v2.0.9 // indirect
 	gopkg.in/gemnasium/logrus-airbrake-hook.v2 v2.1.2 // indirect
 )

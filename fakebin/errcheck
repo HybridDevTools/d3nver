@@ -4,4 +4,4 @@ uid=`id -u`
 gid=`id -g`
 builder_img=denver_builder
 workdir=`docker inspect -f '{{.Config.WorkingDir}}' $builder_img`
-docker exec $builder_img bash -c "cd $PWD; golint $* ; chown -R $uid:$gid $workdir"
+docker exec $builder_img bash -c "cd $PWD; errcheck $* ; chown -R $uid:$gid $workdir"
