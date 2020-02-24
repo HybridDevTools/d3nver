@@ -11,6 +11,7 @@ jobs:
   build:
     name: build
     runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, '[skip-ci]')"
     steps:
 
       - name: Source checkout
@@ -28,7 +29,6 @@ jobs:
       - name: Installing requirements
         run: sudo apt-get -qq update ; sudo apt-get --no-install-recommends install lbzip2 -y
 
-      - uses: actions/checkout@v1
       - name: Fetch .release
         uses: ./.github/actions/extract-version-from-file # Uses an action in the root directory
         id: fetch_version

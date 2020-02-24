@@ -1,2 +1,7 @@
 #!/bin/bash
-docker exec denver_builder bash -c "cd ./src/denver/src; go" $*
+
+uid=`id -u`
+gid=`id -g`
+builder_img=denver_builder
+workdir=`docker inspect -f '{{.Config.WorkingDir}}' $builder_img`
+docker exec $builder_img bash -c "cd $PWD; go $* ; chown -R $uid:$gid $workdir"
