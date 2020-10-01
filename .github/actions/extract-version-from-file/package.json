@@ -9,7 +9,7 @@
   "author": "Walid Moghrabi",
   "license": "ISC",
   "dependencies": {
-    "@actions/core": "^1.2.0",
+    "@actions/core": "^1.2.6",
     "@actions/github": "^2.0.0",
     "fs": "0.0.1-security"
   }
